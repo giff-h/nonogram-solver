@@ -1,4 +1,6 @@
 from itertools import combinations_with_replacement
+from sys import argv
+import re
 
 
 class Nonogram:
@@ -189,11 +191,11 @@ class Nonogram:
 
         Example: 5x5
         +-----+
-        |**.**|
-        |*...*|
-        |..*..|
-        |*...*|
-        |.***.|
+        |**.**| *2 .1 *2
+        |*...*| *1 .3 *1
+        |..*..| .2 *1 .2
+        |**..*| *2 .2 *1
+        |.***.| .1 *3 .1
         +-----+
 
         * is filled
@@ -201,10 +203,74 @@ class Nonogram:
         N is unknown. Creating a Nonogram then immediately printing it will be just this.
         """
 
+        tfn = "*.N"
         print('+' + '-' * len(self.cols) + '+')
         for row in self.grid:
-            print('|' + ''.join("*.N"[(True, False, None).index(i)] for i in row) + '|')
+            print('|' + ''.join(tfn[(True, False, None).index(i)] for i in row) + '|', end="")
+            out = ""
+            count = 0
+            prev = row[0]
+            for i in row:
+                if i is prev:
+                    count += 1
+                else:
+                    out += " " + tfn[(True, False, None).index(prev)] + str(count)
+                    prev = i
+                    count = 1
+            out += " " + tfn[(True, False, None).index(prev)] + str(count)
+            print(out)
         print('+' + '-' * len(self.cols) + '+')
 
-Nonogram.solve([[(1, 5, 2), (2, 2, 3, 1), (6, 1, 3), (3, 1, 1, 1, 2, 3, 1), (2, 3, 2, 1, 1, 2), (2, 2, 1, 1, 4), (2, 3, 5, 4), (2, 2, 1, 1, 1, 2, 4), (2, 3, 2, 2, 4), (3, 3, 2), (1, 3, 1, 1), (6, 7), (3, 1, 2, 1, 1), (2, 4, 4, 1, 1), (2, 1, 5, 3, 2)],
-                [(6,),(8,),(4,2,2),(1,4,1,3),(8,1),(1,1,1,1,1,2),(1,1,2,1,2),(2,3),(1,1,1,2),(1,1,1,1,1),(1,1,1,1,1,1),(1,1,3,1,2),(2,4,1,3),(1,8),(2,7,2),(1,3,1,1,1),(4,4,2,1),(1,5,3),(6,1,1),(6,5)]])
+
+def parse(puzzle_file):
+    """
+    Reads the file whose name is given and parses it into a Nonogram() parameter.
+    The rules are written as space-separated numbers, rows and columns are separated by any number of '-'.
+
+    Example:
+    2 2
+    1 1
+    1
+    2 1
+    3
+    ---
+    2 1
+    1 2
+    1 1
+    1 1
+    2 1
+    will solve to the puzzle in the print_grid() example.
+
+    Any lines that don't conform to the rule or separator context will be ignored.
+
+    :param puzzle_file: Name of the file to read
+    :return: Nonogram rules that can be plugged right into Nonogram() or Nongram.solve()
+    """
+
+    separator = re.compile("-+")
+    rule = re.compile("[0-9]+( +[0-9]+)*")
+    puzzle = []
+
+    with open(puzzle_file) as file:
+        dimension = []
+        for line in file:
+            line = line.strip()
+            match = rule.match(line)
+            if match:
+                dimension.append(tuple(int(i) for i in match.group().split(" ") if not i == "0"))
+            else:
+                match = separator.match(line)
+                if match:
+                    puzzle.append(dimension)
+                    dimension = []
+                else:
+                    continue
+        if not dimension == []:
+            puzzle.append(dimension)
+
+    return puzzle
+
+
+if __name__ == "__main__":
+    if len(argv) > 1:
+        Nonogram.solve(parse(argv[1]))
