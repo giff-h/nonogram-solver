@@ -1,7 +1,7 @@
 from itertools import combinations_with_replacement
 
 
-class Picross:
+class Nonogram:
     def __init__(self, rules):
         self.rows, self.cols = rules
         self.grid = [[None for _ in range(len(self.cols))] for _ in range(len(self.rows))]
@@ -68,7 +68,7 @@ class Picross:
         rules.
         """
 
-        puzzle = Picross(rules)
+        puzzle = Nonogram(rules)
         row = True
         puzzle.fills(not row)
         affected = {True: range(len(puzzle.grid)), False: range(len(puzzle.grid[0]))}
@@ -100,9 +100,9 @@ class Picross:
         assert total >= known  # I dare you to find somewhere in the universe this doesn't apply
 
         possible = []  # The set of possibilities by the rules. Drop all that don't fit compare, then transpose
-        for perm in Picross.falses(len(rule) + 1, total - known):
-            perm = Picross.construct(perm, rule)
-            if Picross.conforms(perm, compare):
+        for perm in Nonogram.falses(len(rule) + 1, total - known):
+            perm = Nonogram.construct(perm, rule)
+            if Nonogram.conforms(perm, compare):
                 possible.append(perm)
 
         if len(possible) == 0:
@@ -198,7 +198,7 @@ class Picross:
 
         * is filled
         . is empty
-        N is unknown. Creating a Picross then immediately printing it will be just this.
+        N is unknown. Creating a Nonogram then immediately printing it will be just this.
         """
 
         print('+' + '-' * len(self.cols) + '+')
@@ -206,5 +206,5 @@ class Picross:
             print('|' + ''.join("*.N"[(True, False, None).index(i)] for i in row) + '|')
         print('+' + '-' * len(self.cols) + '+')
 
-Picross.solve([[(1,5,2),(2,2,3,1),(6,1,3),(3,1,1,1,2,3,1),(2,3,2,1,1,2),(2,2,1,1,4),(2,3,5,4),(2,2,1,1,1,2,4),(2,3,2,2,4),(3,3,2),(1,3,1,1),(6,7),(3,1,2,1,1),(2,4,4,1,1),(2,1,5,3,2)],
-               [(6,),(8,),(4,2,2),(1,4,1,3),(8,1),(1,1,1,1,1,2),(1,1,2,1,2),(2,3),(1,1,1,2),(1,1,1,1,1),(1,1,1,1,1,1),(1,1,3,1,2),(2,4,1,3),(1,8),(2,7,2),(1,3,1,1,1),(4,4,2,1),(1,5,3),(6,1,1),(6,5)]])
+Nonogram.solve([[(1, 5, 2), (2, 2, 3, 1), (6, 1, 3), (3, 1, 1, 1, 2, 3, 1), (2, 3, 2, 1, 1, 2), (2, 2, 1, 1, 4), (2, 3, 5, 4), (2, 2, 1, 1, 1, 2, 4), (2, 3, 2, 2, 4), (3, 3, 2), (1, 3, 1, 1), (6, 7), (3, 1, 2, 1, 1), (2, 4, 4, 1, 1), (2, 1, 5, 3, 2)],
+                [(6,),(8,),(4,2,2),(1,4,1,3),(8,1),(1,1,1,1,1,2),(1,1,2,1,2),(2,3),(1,1,1,2),(1,1,1,1,1),(1,1,1,1,1,1),(1,1,3,1,2),(2,4,1,3),(1,8),(2,7,2),(1,3,1,1,1),(4,4,2,1),(1,5,3),(6,1,1),(6,5)]])
